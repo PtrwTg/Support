@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 หน้าสนับสนุนค่าขนมงานรับปริญญา</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Styles */
+        body {
+            font-family: 'Sarabun', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background: linear-gradient(-45deg, #f7f9fc, #f0f4f8, #e0e7f1);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 90%;
+            padding: 30px;
+            background: #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            text-align: center;
+        }
+        h1 {
+            color: #4a148c; /* ม่วงเข้ม */
+            font-weight: 700;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #7b1fa2; /* ม่วงกลาง */
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        /* LIFF Profile Display */
+        #profile-info-display {
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            margin: 20px 0;
+            background-color: #e8f5e9; /* เขียวอ่อน (สถานะสำเร็จ) */
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+        }
+        #profile-picture {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #4CAF50;
+        }
+        #profile-name {
+            font-weight: 700;
+            color: #2e7d32; /* เขียวเข้ม */
+            font-size: 1em;
+        }
+        /* QR Code Section */
+        #qr-section {
+            padding: 20px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+        #qr-code-img {
+            max-width: 100%;
+            width: 250px;
+            height: auto;
+            border: 4px solid #ffd54f; /* เหลืองทอง */
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .instruction {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .liff-info {
+            padding: 10px;
+            background-color: #ffecb3; /* เหลืองอ่อน */
+            border-radius: 5px;
+            color: #e65100;
+            font-weight: 600;
+        }
+        /* Birthday Style (NEW) */
+        .birthday-banner {
+            background-color: #ffe0b2;
+            color: #e65100;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 700;
+            border: 1px solid #ffb74d;
+        }
+        /* Complete Button Style */
+        .complete-btn {
+            background-color: #4a148c; 
+            color: white; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 50px; 
+            margin-top: 20px; 
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .complete-btn:hover {
+            background-color: #6a1b9a;
+            transform: translateY(-1px);
+        }
+        /* Modal for Thank You (NEW) */
+        .thank-you-modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4); 
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto; 
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%; 
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s;
+        }
+        .modal-img {
+            width: 150px;
+            height: auto;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #6a1b9a;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💵 หน้าสนับสนุนค่าขนม</h1>
+        <p class="subtitle">สแกน QR Code เพื่อส่งค่าขนมและส่งคำอวยพร</p>
+        
+        <div class="birthday-banner" id="birthday-message" style="display: none;">
+            🎂 โปรโมชั่นพิเศษ โอนครั้งเดียวได้ทั้งวันเกิดและงานรับปริญญา มีที่นี่เท่านั้น 🎂
+        </div>
+
+        <div class="liff-info" id="login-message">
+            ⏳ กำลังเชื่อมต่อกับ LINE LIFF และล็อกอิน...
+        </div>
+
+        <div id="profile-info-display">
+            <img id="profile-picture" src="" alt="Profile Picture">
+            <span>ล็อกอินโดย: <span id="profile-name"></span></span>
+        </div>
+
+        <div id="qr-section">
+            <h2 style="color: #4a148c;">สแกนเพื่อสนับสนุนบัณฑิต</h2>
+            <p class="instruction">ใช้แอปพลิเคชันธนาคารของคุณสแกน QR Code นี้</p>
+            
+            <img id="qr-code-img" src="https://i.postimg.cc/15TYfnWw/qr.jpg" alt="QR Code สำหรับการสนับสนุน">
+            
+            <p style="font-weight: bold; color: #4CAF50;">เมื่อโอนแล้ว อย่าลืมส่งสลิปกลับมาที่แชทบอท หรือสามารถส่งเข้าแชทส่วนตัวก็ได้ครับ</p>
+
+            <button onclick="showThankYouModal()" class="complete-btn">
+                โอนเงินเสร็จสิ้น! (กดที่นี่)
+            </button>
+        </div>
+
+    </div>
+    
+    <div id="thankYouModal" class="thank-you-modal">
+        <div class="modal-content">
+            <img class="modal-img" src="ขอบคุณ.png" alt="รูปขอบคุณบัณฑิต">
+            <h2 style="color: #4a148c; margin-top: 0;">ขอบคุณจากใจจริง!</h2>
+            <p style="color: #7b1fa2; font-weight: 600;">"เงินที่ให้มานี้จะถูกนำไปใช้เป็นค่าใช้จ่ายในงานรับปริญญา ! ขอบคุณมาก ๆ เลยนะครับ"</p>
+            <p>ตอนนี้กดปุ่มด้านล่างเพื่อไปเขียนคำอวยพรให้ผมต่อได้เลยนะ 😊</p>
+            
+            <button onclick="redirectToWishPage()" class="complete-btn" style="background-color: #4CAF50;">
+                ไปเขียนคำอวยพร
+            </button>
+        </div>
+    </div>
+    <script>
+        // ** CONFIGURATION **
+        const liffId = '2008162847-GV9l2wmz'; 
+        // URL ของหน้าเว็บไซต์หลัก (หน้าอวยพร)
+        const wishPageUrl = 'https://wish-website.onrender.com'; 
+        // ** END CONFIGURATION **
+        
+        // DOM Elements
+        const profileDisplay = document.getElementById('profile-info-display');
+        const loginMessage = document.getElementById('login-message');
+        const thankYouModal = document.getElementById('thankYouModal');
+
+        // ===================================
+        // 🚀 LIFF Initialization & Login Logic
+        // ===================================
+
+        async function initializeLiff() {
+            try {
+                // 1. เริ่มต้น LIFF
+                await liff.init({ liffId: liffId });
+                loginMessage.textContent = 'เชื่อมต่อ LIFF สำเร็จ...';
+
+                // 2. ตรวจสอบสถานะการล็อกอิน
+                if (!liff.isLoggedIn()) {
+                    loginMessage.textContent = 'กำลังเปลี่ยนไปหน้าล็อกอิน...';
+                    liff.login();
+                } else {
+                    // 3. ดึง Profile และแสดงข้อมูล
+                    const profile = await liff.getProfile();
+
+                    document.getElementById('profile-picture').src = profile.pictureUrl || 'https://via.placeholder.com/40'; 
+                    document.getElementById('profile-name').textContent = profile.displayName;
+                    profileDisplay.style.display = 'flex';
+                    loginMessage.style.display = 'none'; 
+                    
+                    console.log('User logged in successfully:', profile.userId);
+                }
+            } catch (err) {
+                console.error('LIFF initialization failed', err);
+                loginMessage.innerHTML = '<p style="color: #f44336;">❌ เกิดข้อผิดพลาดในการเชื่อมต่อ LIFF กรุณาลองเปิดในแอป LINE</p>';
+            }
+        }
+        
+        // ===================================
+        // ✨ NEW: Modal and Navigation Logic
+        // ===================================
+        
+        function showThankYouModal() {
+            thankYouModal.style.display = 'block';
+        }
+        
+        function redirectToWishPage() {
+            // พาผู้ใช้ไปยังหน้าเขียนคำอวยพร
+            window.location.href = wishPageUrl;
+            
+            // ถ้าอยู่ใน LIFF ให้ปิดหน้าต่างก่อนแล้วส่งต่อ
+            if (liff.isInClient()) {
+                liff.closeWindow();
+            }
+        }
+        
+        // ===================================
+        // 🗓️ NEW: Birthday Logic
+        // ===================================
+
+        function checkBirthday() {
+            const today = new Date();
+            const todayMonth = today.getMonth() + 1; // getMonth() returns 0-11
+            const todayDate = today.getDate();
+            
+            // วันเกิด: 29/09 (เดือน 9 วันที่ 29)
+            if (todayMonth === 9 && todayDate === 29) { 
+                document.getElementById('birthday-message').style.display = 'block';
+            }
+        }
+
+        // ===================================
+        // ⬇️ Main Entry Point
+        // ===================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            checkBirthday(); // ตรวจสอบวันเกิดก่อน
+            
+            if (typeof liff !== 'undefined') {
+                initializeLiff();
+            } else {
+                // Mockup Logic สำหรับทดสอบในเบราว์เซอร์ปกติ
+                loginMessage.innerHTML = '<p style="color: #666;">⚠️ ไม่พบ LIFF SDK กำลังจำลองผู้ใช้สำหรับการทดสอบ</p>';
+                document.getElementById('profile-info-display').style.display = 'flex';
+                document.getElementById('profile-picture').src = 'https://via.placeholder.com/40';
+                document.getElementById('profile-name').textContent = 'Test User (Mock)';
+            }
+        });
+
+    </script>
+</body>
+</html>
